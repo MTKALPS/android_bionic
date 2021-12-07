@@ -1,4 +1,9 @@
 /*
+* Copyright (C) 2014 MediaTek Inc.
+* Modification based on code covered by the mentioned copyright
+* and/or permission notice(s).
+*/
+/*
  * Copyright (C) 2008 The Android Open Source Project
  * All rights reserved.
  *
@@ -597,6 +602,7 @@ _Unwind_Ptr dl_unwind_find_exidx(_Unwind_Ptr pc, int* pcount) {
 // loaded libraries. gcc_eh does the rest.
 int do_dl_iterate_phdr(int (*cb)(dl_phdr_info* info, size_t size, void* data), void* data) {
   int rv = 0;
+
   for (soinfo* si = solist; si != nullptr; si = si->next) {
     dl_phdr_info dl_info;
     dl_info.dlpi_addr = si->link_map_head.l_addr;
