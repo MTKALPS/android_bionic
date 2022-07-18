@@ -1090,7 +1090,7 @@ answer_getTTL(const void* answer, int answerlen)
         XLOG("ns_parserr failed. %s\n", strerror(errno));
     }
 
-    XLOG("TTL = %d\n", result);
+    XLOG("TTL = %lu\n", result);
 
     return result;
 }
@@ -2069,6 +2069,7 @@ _resolv_populate_res_for_net(res_state statp)
             }
 
             if ((size_t) ai->ai_addrlen <= sizeof(statp->_u._ext.ext->nsaddrs[0])) {
+            	debug_log("netid=%u, dns%d:%s\n", statp->netid, nserv, info->nameservers[nserv]);
                 if (statp->_u._ext.ext != NULL) {
                     memcpy(&statp->_u._ext.ext->nsaddrs[nserv], ai->ai_addr, ai->ai_addrlen);
                     statp->nsaddr_list[nserv].sin_family = AF_UNSPEC;

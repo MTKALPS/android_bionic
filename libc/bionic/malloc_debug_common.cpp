@@ -81,7 +81,11 @@ static const MallocDebug __libc_malloc_default_dispatch __attribute__((aligned(3
 };
 
 // Selector of dispatch table to use for dispatching malloc calls.
+#ifdef _MTK_MALLOC_DEBUG_
+const MallocDebug* __libc_malloc_dispatch = &__libc_malloc_default_dispatch;
+#else
 static const MallocDebug* __libc_malloc_dispatch = &__libc_malloc_default_dispatch;
+#endif
 
 // Handle to shared library where actual memory allocation is implemented.
 // This library is loaded and memory allocation calls are redirected there

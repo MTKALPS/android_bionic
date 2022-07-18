@@ -55,6 +55,8 @@
 #include "private/bionic_futex.h"
 #include "private/bionic_macros.h"
 
+#include "private/libc_logging.h"
+
 static const char property_service_socket[] = "/dev/socket/" PROP_SERVICE_NAME;
 
 
@@ -477,6 +479,8 @@ static int send_prop_msg(const prop_msg *msg)
 {
     const int fd = socket(AF_LOCAL, SOCK_STREAM | SOCK_CLOEXEC, 0);
     if (fd == -1) {
+		__libc_format_log(ANDROID_LOG_ERROR, "[PropSet]",
+				"socket fail err:%d\n", fd);
         return -1;
     }
 
@@ -488,6 +492,8 @@ static int send_prop_msg(const prop_msg *msg)
     addr.sun_family = AF_LOCAL;
     socklen_t alen = namelen + offsetof(sockaddr_un, sun_path) + 1;
     if (TEMP_FAILURE_RETRY(connect(fd, reinterpret_cast<sockaddr*>(&addr), alen)) < 0) {
+		__libc_format_log(ANDROID_LOG_ERROR, "[PropSet]",
+				"connect fail\n");
         close(fd);
         return -1;
     }
@@ -632,10 +638,24 @@ int __system_property_get(const char *name, char *value)
 
 int __system_property_set(const char *key, const char *value)
 {
-    if (key == 0) return -1;
+    if (key == 0){
+		 __libc_format_log(ANDROID_LOG_ERROR, "[PropSet]",
+				 "key==0 return directly\n");
+		 return -1;
+	}
     if (value == 0) value = "";
-    if (strlen(key) >= PROP_NAME_MAX) return -1;
-    if (strlen(value) >= PROP_VALUE_MAX) return -1;
+    if (strlen(key) >= PROP_NAME_MAX){
+		 __libc_format_log(ANDROID_LOG_ERROR, "[PropSet]",
+				 "key=%s size:%zd >= max:%d\n",
+				 key, strlen(key), PROP_NAME_MAX);
+		 return -1;
+	}
+    if (strlen(value) >= PROP_VALUE_MAX){
+		__libc_format_log(ANDROID_LOG_ERROR, "[PropSet]",
+				"value=%s size:%zd >= max:%d\n",
+				value, strlen(value), PROP_VALUE_MAX);
+		return -1;
+	}
 
     prop_msg msg;
     memset(&msg, 0, sizeof msg);
@@ -645,6 +665,8 @@ int __system_property_set(const char *key, const char *value)
 
     const int err = send_prop_msg(&msg);
     if (err < 0) {
+		__libc_format_log(ANDROID_LOG_ERROR, "[PropSet]",
+				"send_prop_msg return err %d\n", err);
         return err;
     }
 

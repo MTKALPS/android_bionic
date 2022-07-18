@@ -5235,7 +5235,6 @@ void* dlrealloc(void* oldmem, size_t bytes) {
       mchunkptr newp = try_realloc_chunk(m, oldp, nb, 1);
       POSTACTION(m);
       if (newp != 0) {
-        check_inuse_chunk(m, newp);
         mem = chunk2mem(newp);
       }
       else {
@@ -5273,7 +5272,6 @@ void* dlrealloc_in_place(void* oldmem, size_t bytes) {
         mchunkptr newp = try_realloc_chunk(m, oldp, nb, 0);
         POSTACTION(m);
         if (newp == oldp) {
-          check_inuse_chunk(m, newp);
           mem = oldmem;
         }
       }
@@ -5794,7 +5792,6 @@ void* mspace_realloc(mspace msp, void* oldmem, size_t bytes) {
       mchunkptr newp = try_realloc_chunk(m, oldp, nb, 1);
       POSTACTION(m);
       if (newp != 0) {
-        check_inuse_chunk(m, newp);
         mem = chunk2mem(newp);
       }
       else {
@@ -5833,7 +5830,6 @@ void* mspace_realloc_in_place(mspace msp, void* oldmem, size_t bytes) {
         mchunkptr newp = try_realloc_chunk(m, oldp, nb, 0);
         POSTACTION(m);
         if (newp == oldp) {
-          check_inuse_chunk(m, newp);
           mem = oldmem;
         }
       }

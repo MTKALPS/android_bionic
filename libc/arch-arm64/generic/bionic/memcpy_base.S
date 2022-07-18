@@ -151,6 +151,9 @@
 	 * 64 bytes per line this ensures the entire loop is in one line.  */
 	.p2align 6
 .Lcpy_body_large:
+	cmp	count, #458752
+	b.ge	.Lcpy_body_huge
+
 	/* There are at least 128 bytes to copy.  */
 	ldp	A_l, A_h, [src, #0]
 	sub	dst, dst, #16		/* Pre-bias.  */
@@ -168,6 +171,35 @@
 	ldp	D_l, D_h, [src, #64]!
 	subs	count, count, #64
 	b.ge	1b
+	stp	A_l, A_h, [dst, #16]
+	stp	B_l, B_h, [dst, #32]
+	stp	C_l, C_h, [dst, #48]
+	stp	D_l, D_h, [dst, #64]
+	add	src, src, #16
+	add	dst, dst, #64 + 16
+	tst	count, #0x3f
+	b.ne	.Ltail63
+	ret
+
+.Lcpy_body_huge:
+	/* There are at least 128 bytes to copy.  */
+	ldp	A_l, A_h, [src, #0]
+	sub	dst, dst, #16		/* Pre-bias.  */
+	ldp	B_l, B_h, [src, #16]
+	ldp	C_l, C_h, [src, #32]
+	ldp	D_l, D_h, [src, #48]!	/* src += 64 - Pre-bias.  */
+2:
+    prfm pldl1keep, [src, #(64*32)]
+	stp	A_l, A_h, [dst, #16]
+	ldp	A_l, A_h, [src, #16]
+	stp	B_l, B_h, [dst, #32]
+	ldp	B_l, B_h, [src, #32]
+	stp	C_l, C_h, [dst, #48]
+	ldp	C_l, C_h, [src, #48]
+	stp	D_l, D_h, [dst, #64]!
+	ldp	D_l, D_h, [src, #64]!
+	subs	count, count, #64
+	b.ge	2b
 	stp	A_l, A_h, [dst, #16]
 	stp	B_l, B_h, [dst, #32]
 	stp	C_l, C_h, [dst, #48]

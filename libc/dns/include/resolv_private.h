@@ -60,6 +60,10 @@
 #include "resolv_static.h"
 #include <net/if.h>
 
+#include "private/libc_logging.h"
+#define debug_log(format, ...)  \
+    __libc_format_log(ANDROID_LOG_DEBUG, "libc-netbsd", (format), ##__VA_ARGS__ )
+
 /* Despite this file's name, it's part of libresolv. On Android, that means it's part of libc :-( */
 #pragma GCC visibility push(default)
 
